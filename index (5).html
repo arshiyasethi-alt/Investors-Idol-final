@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Investors Idol</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --bg:#EFF4F1; --card:#FFFFFF; --ink:#0F2A2E; --ink-soft:#4A6259;
+  --teal:#1F6F5C; --teal-deep:#14493D; --gold:#C79A3D; --brick:#B5493D; --line:#DCE6E1;
+  --stage-dark:#0A0C11; --stage-dark2:#040507; --stage-glow:rgba(227,178,60,.32);
+  --marquee:#F3E3B8; --marquee-soft:#B9AF95;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 900px 520px at 50% -8%, var(--stage-glow), transparent 60%),
+    radial-gradient(ellipse 640px 420px at 10% 8%, rgba(227,178,60,.10), transparent 55%),
+    radial-gradient(ellipse 640px 420px at 90% 6%, rgba(227,178,60,.10), transparent 55%),
+    linear-gradient(180deg, var(--stage-dark) 0%, var(--stage-dark2) 100%);
+  font-family:'IBM Plex Sans',sans-serif;color:var(--ink);padding:calc(32px + env(safe-area-inset-top,0px)) 16px calc(32px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;
+}
+.app{width:100%;max-width:640px;}
+
+.masthead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;}
+.masthead .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--marquee-soft);font-weight:600;}
+.masthead h1{font-family:'Fraunces',serif;font-weight:600;font-size:27px;margin:6px 0 0 0;letter-spacing:-.01em;color:var(--marquee);text-shadow:0 0 22px rgba(227,178,60,.55), 0 0 2px rgba(255,255,255,.15);}
+.masthead h1 .star{color:var(--gold);font-size:15px;vertical-align:middle;opacity:.85;}
+.masthead .tagline{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--marquee-soft);margin-top:5px;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;background:var(--stage-dark);border:1px solid var(--gold);color:var(--marquee);padding:6px 10px;border-radius:999px;white-space:nowrap;align-self:flex-start;box-shadow:0 0 14px rgba(227,178,60,.25);}
+
+/* ---- Name capture ---- */
+.name-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;margin-bottom:16px;box-shadow:0 10px 34px rgba(0,0,0,.4);}
+.name-card label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:8px;}
+.name-row{display:flex;gap:10px;}
+.name-row input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--ink);background:#FBFCFB;}
+.name-row input:focus{outline:none;border-color:var(--teal);}
+.name-row button{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:0 18px;cursor:pointer;}
+.name-row button:hover{background:var(--teal-deep);}
+.name-error{font-size:12.5px;color:var(--brick);margin-top:8px;display:none;}
+.name-error.show{display:block;}
+.name-locked{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:16px;display:none;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.name-locked.show{display:flex;}
+.name-locked span{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+.name-locked b{color:var(--ink);}
+.name-locked button{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+
+/* ---- Sector select ---- */
+.sector-screen{display:flex;flex-direction:column;gap:12px;}
+.sector-screen.locked .sector-card{opacity:.45;pointer-events:none;}
+.sector-intro{font-size:14.5px;color:var(--marquee-soft);line-height:1.55;margin:0 0 6px 0;}
+.sector-card{
+  background:var(--card);border:1.5px solid var(--line);border-radius:18px;
+  padding:20px 20px;cursor:pointer;text-align:left;display:flex;gap:16px;align-items:flex-start;
+  transition:border-color .15s ease, transform .1s ease, opacity .15s ease, box-shadow .15s ease;
+  box-shadow:0 6px 24px rgba(0,0,0,.35), 0 0 0 rgba(227,178,60,0);
+}
+.sector-card:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,0,0,.4), 0 0 22px rgba(227,178,60,.25);}
+.sector-mark{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;color:#fff;
+}
+.sector-body .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:3px;}
+.sector-body h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin:0 0 4px 0;}
+.sector-body p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+.admin-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--marquee-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:6px;align-self:flex-start;opacity:.85;}
+
+/* ---- Vitals strip ---- */
+.vitals-strip{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:18px;display:none;align-items:center;gap:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.vitals-strip.show{display:flex;}
+.pulse-path{fill:none;stroke:var(--line);stroke-width:2.5;}
+.pulse-path-fill{fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1);}
+.vitals-readout{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);}
+.vitals-readout b{color:var(--ink);font-size:14px;}
+.track-chip{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;background:#EAF4EF;color:var(--teal-deep);padding:5px 9px;border-radius:999px;font-weight:600;}
+
+/* ---- Quiz card ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px 26px;min-height:340px;display:none;flex-direction:column;box-shadow:0 10px 34px rgba(0,0,0,.4);}
+.card.show{display:flex;}
+.q-number{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.08em;margin-bottom:10px;}
+.q-text{font-family:'Fraunces',serif;font-size:21px;font-weight:500;line-height:1.35;margin:0 0 22px 0;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{text-align:left;border:1.5px solid var(--line);background:#FBFCFB;border-radius:12px;padding:14px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s ease, background .15s ease, transform .1s ease;}
+.option:hover:not(:disabled){border-color:var(--teal);transform:translateY(-1px);}
+.option:disabled{cursor:default;}
+.option .letter{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;width:22px;height:22px;border-radius:6px;background:var(--line);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.option.correct{border-color:var(--teal);background:#EAF4EF;}
+.option.correct .letter{background:var(--teal);color:#fff;}
+.option.wrong{border-color:var(--brick);background:#FBEEEC;}
+.option.wrong .letter{background:var(--brick);color:#fff;}
+.option.dim{opacity:.5;}
+.option.picked{border-color:var(--teal);background:#EAF4EF;}
+.option.picked .letter{background:var(--teal);color:#fff;}
+
+.feedback{margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.5;display:none;animation:rise .25s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.feedback.show{display:block;}
+.feedback.good{background:#EAF4EF;color:var(--teal-deep);}
+.feedback.bad{background:#FBEEEC;color:var(--brick);}
+.feedback.neutral{background:#F2F0E9;color:var(--ink-soft);}
+.feedback .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px;font-weight:600;}
+
+.footer-row{margin-top:auto;padding-top:20px;display:flex;justify-content:space-between;align-items:center;}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;}
+.next-btn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;letter-spacing:.03em;background:var(--teal);color:#fff;border:none;border-radius:999px;padding:11px 22px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s ease, background .15s ease;}
+.next-btn.show{opacity:1;pointer-events:auto;}
+.next-btn:hover{background:var(--teal-deep);}
+
+/* ---- Results ---- */
+.results{display:none;flex-direction:column;align-items:center;text-align:center;padding:20px 6px 6px;}
+.results.show{display:flex;}
+.gauge-wrap{position:relative;width:170px;height:170px;margin-bottom:14px;}
+.gauge-score{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-score .num{font-family:'Fraunces',serif;font-size:38px;font-weight:600;color:var(--ink);line-height:1;}
+.gauge-score .of{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.gauge-ring-bg{fill:none;stroke:var(--line);stroke-width:10;}
+.gauge-ring-fill{fill:none;stroke:var(--teal);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);}
+
+.stamp-wrap{width:130px;height:130px;border-radius:50%;border:3px solid var(--teal);display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:#EAF4EF;animation:stampin .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes stampin{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.stamp-wrap .mono{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--teal-deep);padding:0 12px;line-height:1.25;}
+
+.tier-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:6px;}
+.tier-title{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin:0 0 10px 0;}
+.tier-desc{font-size:14.5px;color:var(--ink-soft);line-height:1.55;max-width:440px;margin:0 0 22px 0;}
+.results-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.cta-btn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;border-radius:999px;padding:12px 22px;cursor:pointer;border:none;}
+.cta-btn.primary{background:var(--gold);color:var(--teal-deep);}
+.cta-btn.primary:hover{background:#B98A2E;}
+.cta-btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
+.cta-btn.ghost:hover{background:#EAF4EF;}
+
+
+/* ---- Book a call question ---- */
+.call-ask{width:100%;max-width:440px;margin:0 0 22px 0;padding:16px 16px 14px;border:1.5px solid var(--line);border-radius:14px;background:#FBFCFB;}
+.call-q{font-family:'Fraunces',serif;font-size:16.5px;font-weight:500;line-height:1.35;margin:0 0 12px 0;color:var(--ink);}
+.call-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.call-btn{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;border-radius:999px;padding:10px 20px;cursor:pointer;border:1.5px solid var(--teal);background:transparent;color:var(--teal);}
+.call-btn.yes{background:var(--teal);color:#fff;}
+.call-btn.yes:hover{background:var(--teal-deep);}
+.call-btn.no:hover{background:#EAF4EF;}
+.call-thanks{display:none;font-size:13.5px;line-height:1.5;color:var(--teal-deep);margin:0;}
+.call-ask.done .call-btns{display:none;}
+.call-ask.done .call-thanks{display:block;}
+
+/* ---- Admin panel ---- */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(15,42,46,.55);align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50;}
+.admin-overlay.show{display:flex;}
+.admin-panel{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:760px;}
+.admin-panel h2{font-family:'Fraunces',serif;font-size:19px;margin:0 0 4px 0;}
+.admin-panel p.sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px 0;}
+.admin-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.admin-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1.5px solid var(--line);padding:6px 8px;}
+.admin-table td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;}
+.admin-empty{font-size:13px;color:var(--ink-soft);padding:16px 0;}
+.admin-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Robinhood Capital × OneInsure</div>
+      <h1><span class="star">✦</span> Investors Idol <span class="star">✦</span></h1>
+      <div class="tagline">Your money story, center stage.</div>
+    </div>
+    <div class="badge">FREE CHECK-UP</div>
+  </div>
+
+  <!-- Name capture -->
+  <div class="name-card" id="nameCard">
+    <label for="nameInput">Your name (so we can save your check-up)</label>
+    <div class="name-row">
+      <input type="text" id="nameInput" placeholder="e.g. Priya Sharma" />
+      <button id="nameSaveBtn">Continue</button>
+    </div>
+    <div class="name-error" id="nameError">Please enter your name to continue.</div>
+  </div>
+  <div class="name-locked" id="nameLocked">
+    <span>Checking in as <b id="nameLockedText"></b></span>
+    <button id="nameEditBtn">change</button>
+  </div>
+
+  <div class="vitals-strip" id="vitalsStrip">
+    <svg width="56" height="28" viewBox="0 0 64 32">
+      <path class="pulse-path" d="M0 16 L14 16 L19 4 L25 28 L30 16 L64 16"/>
+      <path class="pulse-path-fill" id="pulseFill" d="M0 16 L14 16 L19 4 L25 28 L30 16 L64 16"/>
+    </svg>
+    <div class="vitals-readout">Progress <b id="progressReadout">Q1</b></div>
+    <div class="track-chip" id="trackChip">TRACK</div>
+  </div>
+
+  <!-- Sector select -->
+  <div class="sector-screen locked" id="sectorScreen">
+    <p class="sector-intro">Three quick check-ups, each built for a different starting point. Pick the one that sounds like you.</p>
+
+    <button class="sector-card" data-track="track1">
+      <div class="sector-mark" style="background:#1F6F5C;">01</div>
+      <div class="sector-body">
+        <span class="tag">Not investing yet</span>
+        <h3>Where does your money story begin?</h3>
+        <p>A light, no-pressure read on your habits and mindset — no right or wrong answers, just you.</p>
+      </div>
+    </button>
+
+    <button class="sector-card" data-track="track2">
+      <div class="sector-mark" style="background:#C79A3D;">02</div>
+      <div class="sector-body">
+        <span class="tag">Already invest, through a wealth manager</span>
+        <h3>How well is your money being looked after?</h3>
+        <p>Reflect on your current experience and see where a second opinion could add the most value.</p>
+      </div>
+    </button>
+
+    <button class="sector-card" data-track="track3">
+      <div class="sector-mark" style="background:#14493D;">03</div>
+      <div class="sector-body">
+        <span class="tag">Invest on your own, directly</span>
+        <h3>Test your investing knowledge</h3>
+        <p>A quick 8-question check, from very easy to very hard — funds, risk, tax and the numbers behind them.</p>
+      </div>
+    </button>
+
+    <button class="admin-link" id="adminLink">View saved responses (this device)</button>
+  </div>
+
+  <!-- Quiz card -->
+  <div class="card" id="quizCard">
+    <div class="q-number" id="qNumber">QUESTION 01</div>
+    <p class="q-text" id="qText"></p>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback">
+      <span class="tag" id="feedbackTag"></span>
+      <span id="feedbackText"></span>
+    </div>
+    <div class="footer-row">
+      <button class="back-link" id="backLink">← choose a different check-up</button>
+      <button class="next-btn" id="nextBtn">Next →</button>
+    </div>
+  </div>
+
+  <!-- Results: knowledge (gauge) -->
+  <div class="card results" id="resultsKnowledge">
+    <div class="tier-label">Your reading</div>
+    <div class="gauge-wrap">
+      <svg width="170" height="170" viewBox="0 0 180 180">
+        <circle class="gauge-ring-bg" cx="90" cy="90" r="76"/>
+        <circle class="gauge-ring-fill" id="gaugeFill" cx="90" cy="90" r="76"/>
+      </svg>
+      <div class="gauge-score"><div class="num" id="scoreNum">0</div><div class="of" id="scoreOf">OUT OF 8</div></div>
+    </div>
+    <div class="tier-title" id="kTitle"></div>
+    <p class="tier-desc" id="kDesc"></p>
+    <div class="call-ask">
+      <p class="call-q">Would you like to book a call with a wealth expert?</p>
+      <div class="call-btns">
+        <button class="call-btn yes" data-ans="Yes">Yes, please</button>
+        <button class="call-btn no" data-ans="No">Not right now</button>
+      </div>
+      <p class="call-thanks"></p>
+    </div>
+    <div class="results-actions">
+      <button class="cta-btn primary" id="retakeKnowledge">Retake this check-up</button>
+      <button class="cta-btn ghost" id="switchFromKnowledge">Try a different track</button>
+    </div>
+  </div>
+
+  <!-- Results: stamp-style (track1 / track2) -->
+  <div class="card results" id="resultsStamp">
+    <div class="tier-label" id="stampEyebrow">Your reading</div>
+    <div class="stamp-wrap"><span class="mono" id="stampText">—</span></div>
+    <div class="tier-title" id="sTitle"></div>
+    <p class="tier-desc" id="sDesc"></p>
+    <div class="call-ask">
+      <p class="call-q">Would you like to book a call with a wealth expert?</p>
+      <div class="call-btns">
+        <button class="call-btn yes" data-ans="Yes">Yes, please</button>
+        <button class="call-btn no" data-ans="No">Not right now</button>
+      </div>
+      <p class="call-thanks"></p>
+    </div>
+    <div class="results-actions">
+      <button class="cta-btn primary" id="retakeStamp">Retake this check-up</button>
+      <button class="cta-btn ghost" id="switchFromStamp">Try a different track</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Admin overlay -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <h2>Saved responses</h2>
+    <p class="sub">Stored in this browser only. Export to CSV to keep a copy or move it into a spreadsheet.</p>
+    <div id="adminContent"></div>
+    <div class="admin-actions">
+      <button class="cta-btn ghost" id="adminClose">Close</button>
+      <button class="cta-btn primary" id="adminExport">Download CSV</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------- DATA ---------------------------- */
+
+// TRACK 1 — not investing yet (personality, tags 0-2 -> 3 result cards). 7 questions; Q1 is the financial plan question.
+const ARCHETYPES = [
+  { code:"Learner", eyebrow:"Your money mindset", title:"Ready to Learn",
+    desc:"You're curious about investing and mostly need a clear place to start. A Wealth Clinic session walks you through the first steps in plain language, so you can begin with confidence." },
+  { code:"Saver", eyebrow:"Your money mindset", title:"Careful Saver",
+    desc:"You save regularly and keep your money safe, but the world of investment options is still unfamiliar to you. With someone to guide you, that steady habit can start working harder for you." },
+  { code:"Waiting", eyebrow:"Your money mindset", title:"Waiting to Begin",
+    desc:"Between a busy schedule and a topic that can feel complicated, investing keeps getting pushed back. A short, focused Wealth Clinic session keeps things simple and fits easily into your week." }
+];
+
+const track1 = {
+  label:"TRACK 01",
+  type:"personality",
+  questions:[
+    { q:"Have you done your financial plan?",
+      options:[
+        {label:"Yes", tag:1},
+        {label:"No", tag:0}
+      ]},
+    { q:"When you get some unexpected extra money, what's your first move?",
+      options:[
+        {label:"Save it", tag:1},
+        {label:"Spend it now", tag:2},
+        {label:"Save some, spend some", tag:0},
+        {label:"Not sure where it goes", tag:2}
+      ]},
+    { q:"When investing comes up in conversation, you feel...",
+      options:[
+        {label:"Curious, I want to know more", tag:0},
+        {label:"Like it's not for me right now", tag:2},
+        {label:"A bit anxious, it feels complicated", tag:2},
+        {label:"Comfortable with the idea, just haven't acted", tag:1}
+      ]},
+    { q:"If someone offered to explain investing in plain, simple terms, you'd say...",
+      options:[
+        {label:"Yes, sounds great", tag:0},
+        {label:"Maybe, when I have time", tag:2},
+        {label:"I'd rather figure it out myself", tag:1},
+        {label:"I'd probably put it off", tag:2}
+      ]},
+    { q:"What's mainly holding you back from investing right now?",
+      options:[
+        {label:"Not sure where to even start", tag:0},
+        {label:"Too many commitments", tag:2},
+        {label:"Feels risky, I'd rather keep saving", tag:1},
+        {label:"The whole topic feels like a lot", tag:2}
+      ]},
+    { q:"How would you describe your investing knowledge right now?",
+      options:[
+        {label:"I know the basics, ready to start", tag:0},
+        {label:"I know a little, want to learn more", tag:1},
+        {label:"I don't have time to learn right now", tag:2},
+        {label:"I find it confusing", tag:2}
+      ]},
+    { q:"Which best describes your saving habit?",
+      options:[
+        {label:"I save regularly, without fail", tag:1},
+        {label:"I save whatever's left over", tag:2},
+        {label:"I save toward specific goals", tag:0},
+        {label:"I don't really save in a structured way", tag:2}
+      ]}
+  ]
+};
+
+// TRACK 2 — invest through another wealth manager. 6 questions from the booth Excel. Any answer with a tag counts as one gap; result = number of gaps (0-1 Well Managed, 2-3 Still Evaluating, 4-6 Could Be Better).
+const VALUEGAPS = [
+  { code:"On Track", eyebrow:"Your wealth manager", title:"Well Managed",
+    desc:"You feel your portfolio is in good hands, your wealth manager is taking good care of it." },
+  { code:"Reviewing", eyebrow:"Your wealth manager", title:"Still Evaluating",
+    desc:"Your relationship with your wealth manager is still new, and it will take some time to judge how well it is working." },
+  { code:"Room to Improve", eyebrow:"Your wealth manager", title:"Could Be Better",
+    desc:"The commitments made at the start have not been acted on, and the returns have not been satisfactory." }
+];
+
+const track2 = {
+  label:"TRACK 02",
+  type:"personality",
+  questions:[
+    { q:"Have you done your financial plan?",
+      options:[
+        {label:"Yes", tag:null},
+        {label:"No", tag:1}
+      ]},
+    { q:"Do your investments align with your goals?",
+      options:[
+        {label:"Yes", tag:null},
+        {label:"Maybe", tag:1},
+        {label:"No", tag:1}
+      ]},
+    { q:"How often does your wealth manager engage with you?",
+      options:[
+        {label:"Once in a week", tag:null},
+        {label:"Once in a month", tag:null},
+        {label:"More than a month", tag:0}
+      ]},
+    { q:"Has your wealth manager made an opportunity fund?",
+      options:[
+        {label:"Yes", tag:null},
+        {label:"No", tag:2},
+        {label:"Yes, but I skipped", tag:2}
+      ]},
+    { q:"Have you ever evaluated your wealth manager's performance?",
+      options:[
+        {label:"Yes", tag:null},
+        {label:"No", tag:0}
+      ]},
+    { q:"How many funds are there in your portfolio?",
+      options:[
+        {label:"Less than 10", tag:null},
+        {label:"10", tag:2},
+        {label:"More than 10", tag:2}
+      ]}
+  ]
+};
+
+// TRACK 3 — direct/self-directed investors (knowledge, scored).
+// 24-question bank (6 per difficulty level). Every time a new name is entered, a fresh round of 8 is drawn:
+// 2 Very Easy -> 2 Easy -> 2 Hard -> 2 Very Hard, with answer options shuffled. `correct` = index into the options as listed here.
+const LEVELS = ["Very Easy","Easy","Hard","Very Hard"];
+const TRACK3_BANK = {
+  "Very Easy":[
+    { q:"Which investment generally has a longer recommended investment horizon?",
+      options:["Equity mutual funds","Savings account","Short-term fixed deposit","Current account"], correct:0,
+      why:"Equity needs time to ride out the ups and downs of the market, so a 5+ year horizon is the usual guidance. Savings accounts and short-term FDs are meant for near-term needs." },
+    { q:"What is the primary purpose of an index fund?",
+      options:["To beat the market by actively selecting stocks","To replicate the performance of a specific market index","To guarantee fixed returns","To invest only in high-growth companies"], correct:1,
+      why:"An index fund simply mirrors an index such as the Nifty 50 or Sensex. It doesn't try to beat it, and it doesn't guarantee returns." },
+    { q:"What is the primary purpose of a mutual fund?",
+      options:["To guarantee returns","To pool investors' money and invest it in a portfolio of securities","To eliminate market risk","To invest only in fixed deposits"], correct:1,
+      why:"A mutual fund pools money from many investors and a professional fund manager invests it across a portfolio of securities. Returns aren't guaranteed and market risk remains." },
+    { q:"What does a bond primarily represent?",
+      options:["Ownership in a company","A loan made by an investor to a borrower","A share of a mutual fund","A guaranteed stock investment"], correct:1,
+      why:"When you buy a bond you are lending money to the issuer (a government or company), which pays you interest and returns the principal at maturity." },
+    { q:"Which asset is generally seen as a hedge against inflation?",
+      options:["Gold","Mutual Fund","Fixed Deposit","Real Estate"], correct:0,
+      why:"Gold is traditionally seen as an inflation hedge because it tends to hold its purchasing power when the value of currency falls." },
+    { q:"You have decided to start investing. What should you do first?",
+      options:["Choose the right investment product","Set your financial plan","Create your emergency fund"], correct:2,
+      why:"An emergency fund (usually 3–6 months of expenses) comes first, so you won't have to break your investments the moment life throws a surprise at you. Choosing products and building a plan come after that." }
+  ],
+  "Easy":[
+    { q:"For evaluating a fund on the basis of historical returns, which type of return is more suitable?",
+      options:["Rolling return","CAGR","XIRR","Absolute"], correct:0,
+      why:"Rolling returns look at returns over many overlapping periods, so the result doesn't depend on the particular start and end dates you happen to pick." },
+    { q:"In a healthy portfolio, what is the maximum count of funds?",
+      options:["12","20","5","8"], correct:3,
+      why:"Beyond roughly 8 funds, holdings start to overlap and add complexity without adding real diversification." },
+    { q:"If you are investing for the first time and have a limited corpus, which mutual fund category is suitable for you?",
+      options:["Diversified Equity Fund","Sectoral/Thematic Fund","Small Cap Fund","Single-stock Portfolio"], correct:0,
+      why:"A diversified equity fund spreads your money across many companies and sectors, which makes it a more balanced starting point than concentrated or niche options." },
+    { q:"What is the primary purpose of an ETF?",
+      options:["To guarantee market-beating returns","To provide exposure to a basket of securities and trade on an exchange","To eliminate investment risk","To provide a fixed interest rate"], correct:1,
+      why:"An ETF holds a basket of securities and trades on the stock exchange like a share, giving you diversified exposure in a single unit." },
+    { q:"What is the primary purpose of asset allocation?",
+      options:["Reduce Risk","To increase upward participation","To guarantee returns","To divide between Large, Mid, Small"], correct:0,
+      why:"Dividing money across asset classes means that a fall in one doesn't sink the whole portfolio, so the main purpose of asset allocation is to manage risk." },
+    { q:"Where will you invest for your emergency fund?",
+      options:["Savings account","Equity","Debt/FD","Gold"], correct:2,
+      why:"An emergency fund should be safe, easy to get at and steady, so debt options or FDs suit it well. Equity and gold can swing in value just when you need the money." }
+  ],
+  "Hard":[
+    { q:"What does NAV represent?",
+      options:["Fund value per unit","Fund return","Fund expense","Fund risk"], correct:0,
+      why:"NAV (Net Asset Value) is the value of one unit of the fund: total assets minus liabilities, divided by the number of units." },
+    { q:"If inflation is higher than your investment return, what happens to your purchasing power?",
+      options:["Increases","Remains the same","Decreases","Doubles"], correct:2,
+      why:"If prices rise faster than your money grows, your real return is negative and each rupee buys less than before." },
+    { q:"Can a person in the new tax regime save taxes by investing in an ELSS fund?",
+      options:["Yes","No"], correct:1,
+      why:"ELSS gives a deduction under Section 80C, which is generally not available under the new tax regime." },
+    { q:"Which risk cannot be eliminated simply by diversifying across stocks?",
+      options:["Company-specific risk","Market risk","Management risk","Business risk"], correct:1,
+      why:"Market (systematic) risk affects the whole market, so spreading money across stocks doesn't remove it. Company-specific risks can be reduced by diversifying." },
+    { q:"Which is a tax-saving investment option?",
+      options:["ELSS Mutual Fund","Equity Savings Fund","Balanced Advantage Fund","Liquid Fund"], correct:0,
+      why:"ELSS (Equity Linked Savings Scheme) qualifies for a deduction under Section 80C in the old tax regime and has a 3-year lock-in." },
+    { q:"A fund invests 70% in Large Cap and 30% in Mid Cap stocks. Which category does it fit?",
+      options:["Flexi Cap","Large & Mid Cap","Multi Cap","Focused Fund"], correct:1,
+      why:"A Large & Mid Cap fund must invest at least 35% each in large-cap and mid-cap stocks, so a 70/30 split fits that category." }
+  ],
+  "Very Hard":[
+    { q:"What does a beta above 1 generally indicate?",
+      options:["Lower volatility than the market","Higher sensitivity to market movements","Guaranteed higher returns","Lower risk"], correct:1,
+      why:"A beta above 1 means the fund tends to move more than the market: it can gain more in rallies and fall more in declines." },
+    { q:"Which risk cannot be eliminated simply by diversifying across stocks?",
+      options:["Company-specific risk","Market risk","Management risk","Business risk"], correct:1,
+      why:"Market (systematic) risk affects the whole market, so spreading money across stocks doesn't remove it. Company-specific risks can be reduced by diversifying." },
+    { q:"Which mutual fund category generally invests across different market capitalisations?",
+      options:["Flexi Cap","Multi Cap","Large & Mid Cap","Focused Fund"], correct:1,
+      why:"A Multi Cap fund must keep at least 25% each in large, mid and small caps, so it invests across all three market capitalisations by rule." },
+    { q:"Through which product can one save taxes under the new tax regime?",
+      options:["NPS","ELSS Mutual Fund","PPF","Tax-saving FD"], correct:0,
+      why:"Under the new regime, most Section 80C options are not available, but the employer's contribution to NPS remains deductible under Section 80CCD(2)." },
+    { q:"What does the Sortino Ratio measure?",
+      options:["Return per unit of downside risk","Return per unit of total risk","Return above the risk-free rate","Total return vs market volatility"], correct:0,
+      why:"Sortino is similar to Sharpe but only counts downside volatility as risk, so it doesn't penalise a fund for upward swings." },
+    { q:"Which mutual fund category must invest at least 65% in equity?",
+      options:["Equity Savings","Arbitrage","Equity-oriented fund","Balanced Advantage"], correct:2,
+      why:"A fund that keeps at least 65% of its assets in equity is treated as equity-oriented, which also decides how its gains are taxed." }
+  ]
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+
+// Draw a fresh round: 2 questions per level (no repeated question text), ordered easy -> hard, options shuffled.
+function drawTrack3Round(){
+  const used = new Set();
+  const round = [];
+  LEVELS.forEach(level=>{
+    let picked = 0;
+    for (const item of shuffle(TRACK3_BANK[level])){
+      if (picked === 2) break;
+      const key = item.q.trim().toLowerCase();
+      if (used.has(key)) continue;
+      used.add(key);
+      const order = shuffle(item.options.map((_,i)=>i));
+      round.push({
+        level, q:item.q, why:item.why,
+        options: order.map(i=>item.options[i]),
+        correct: order.indexOf(item.correct)
+      });
+      picked++;
+    }
+  });
+  track3.questions = round;
+}
+
+const track3 = {
+  label:"TRACK 03",
+  type:"knowledge",
+  questions:[]
+};
+
+const TRACKS = { track1, track2, track3 };
+drawTrack3Round();
+
+/* ---------------------------- NAME CAPTURE ---------------------------- */
+let participantName = "";
+const nameCard = document.getElementById('nameCard');
+const nameLocked = document.getElementById('nameLocked');
+const nameInput = document.getElementById('nameInput');
+const nameError = document.getElementById('nameError');
+const sectorScreenEl = document.getElementById('sectorScreen');
+
+function lockInName(){
+  const val = nameInput.value.trim();
+  if (!val){ nameError.classList.add('show'); return; }
+  nameError.classList.remove('show');
+  participantName = val;
+  drawTrack3Round(); // new person = new set of 8 questions
+  document.getElementById('nameLockedText').textContent = participantName;
+  nameCard.style.display = 'none';
+  nameLocked.classList.add('show');
+  sectorScreenEl.classList.remove('locked');
+}
+document.getElementById('nameSaveBtn').addEventListener('click', lockInName);
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') lockInName(); });
+document.getElementById('nameEditBtn').addEventListener('click', ()=>{
+  nameLocked.classList.remove('show');
+  nameCard.style.display = 'block';
+  sectorScreenEl.classList.add('locked');
+  nameInput.value = participantName;
+  nameInput.focus();
+});
+
+/* ---------------------------- RESPONSE LOGGING ---------------------------- */
+const STORAGE_KEY = 'wealthClinicResponses';
+
+let lastSavedTs = null;
+
+function saveResponse(entry){
+  entry.callRequest = "Not answered";
+  lastSavedTs = entry.timestamp;
+  try {
+    let all = [];
+    try { all = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ all = []; }
+    all.push(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  } catch(e){ /* storage unavailable: the quiz still works */ }
+}
+
+function updateCallChoice(choice){
+  try {
+    const all = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    for (let i=all.length-1;i>=0;i--){
+      if (all[i].timestamp === lastSavedTs){ all[i].callRequest = choice; break; }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  } catch(e){ /* storage unavailable: the quiz still works */ }
+}
+
+function resetCallAsk(){
+  document.querySelectorAll('.call-ask').forEach(el=>{
+    el.classList.remove('done');
+    el.querySelector('.call-thanks').textContent = '';
+  });
+}
+
+document.querySelectorAll('.call-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const choice = btn.dataset.ans;
+    const box = btn.closest('.call-ask');
+    box.querySelector('.call-thanks').textContent = choice === 'Yes'
+      ? "Wonderful. Let our team know and we'll set up your call with a wealth expert."
+      : "No problem. Your free Wealth Clinic session is there whenever you want it.";
+    box.classList.add('done');
+    updateCallChoice(choice);
+  });
+});
+
+function getAllResponses(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ return []; }
+}
+
+function renderAdminPanel(){
+  const rows = getAllResponses();
+  const content = document.getElementById('adminContent');
+  if (!rows.length){
+    content.innerHTML = '<p class="admin-empty">No responses saved on this device yet.</p>';
+    return;
+  }
+  let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Track</th><th>Result</th><th>Call with expert?</th><th>When</th></tr></thead><tbody>';
+  rows.slice().reverse().forEach(r=>{
+    html += `<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.trackLabel)}</td><td>${escapeHtml(r.result)}</td><td>${escapeHtml(r.callRequest || '-')}</td><td>${escapeHtml(new Date(r.timestamp).toLocaleString())}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('adminLink').addEventListener('click', ()=>{
+  renderAdminPanel();
+  document.getElementById('adminOverlay').classList.add('show');
+});
+document.getElementById('adminClose').addEventListener('click', ()=>{
+  document.getElementById('adminOverlay').classList.remove('show');
+});
+document.getElementById('adminExport').addEventListener('click', ()=>{
+  const rows = getAllResponses();
+  if (!rows.length) return;
+  const header = ['Name','Track','Result','Call with expert','Timestamp','Answers'];
+  const lines = [header.join(',')];
+  rows.forEach(r=>{
+    const answersStr = r.answers.map(a=>`${a.question}: ${a.answer}`).join(' | ');
+    const line = [r.name, r.trackLabel, r.result, r.callRequest || '-', new Date(r.timestamp).toLocaleString(), answersStr]
+      .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+    lines.push(line);
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'wealth_clinic_responses.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+/* ---------------------------- ENGINE ---------------------------- */
+let activeTrackKey = null;
+let current = 0;
+let score = 0;
+let tally = [0,0,0,0];
+let answered = false;
+let answerLog = [];
+
+const sectorScreen = document.getElementById('sectorScreen');
+const quizCard = document.getElementById('quizCard');
+const resultsKnowledge = document.getElementById('resultsKnowledge');
+const resultsStamp = document.getElementById('resultsStamp');
+const vitalsStrip = document.getElementById('vitalsStrip');
+const trackChip = document.getElementById('trackChip');
+
+const qNumber = document.getElementById('qNumber');
+const qText = document.getElementById('qText');
+const optionsEl = document.getElementById('options');
+const feedback = document.getElementById('feedback');
+const feedbackTag = document.getElementById('feedbackTag');
+const feedbackText = document.getElementById('feedbackText');
+const nextBtn = document.getElementById('nextBtn');
+const backLink = document.getElementById('backLink');
+const progressReadout = document.getElementById('progressReadout');
+const pulseFill = document.getElementById('pulseFill');
+
+const pulseLen = pulseFill.getTotalLength ? pulseFill.getTotalLength() : 1;
+pulseFill.style.strokeDasharray = pulseLen;
+pulseFill.style.strokeDashoffset = pulseLen;
+
+function showOnly(el){
+  [sectorScreen, quizCard, resultsKnowledge, resultsStamp].forEach(e=>{
+    if(e===sectorScreen){ e.style.display = (e===el)?'flex':'none'; }
+    else { e.classList.toggle('show', e===el); }
+  });
+  vitalsStrip.classList.toggle('show', el===quizCard);
+}
+
+document.querySelectorAll('.sector-card').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    if (!participantName) return;
+    startTrack(card.dataset.track);
+  });
+});
+backLink.addEventListener('click', goToSectorSelect);
+document.getElementById('switchFromKnowledge').addEventListener('click', goToSectorSelect);
+document.getElementById('switchFromStamp').addEventListener('click', goToSectorSelect);
+document.getElementById('retakeKnowledge').addEventListener('click', ()=>startTrack('track3'));
+document.getElementById('retakeStamp').addEventListener('click', ()=>startTrack(activeTrackKey));
+
+function goToSectorSelect(){
+  activeTrackKey = null;
+  showOnly(sectorScreen);
+}
+
+function startTrack(key){
+  activeTrackKey = key;
+  current = 0; score = 0; tally = [0,0,0,0]; answerLog = [];
+  trackChip.textContent = TRACKS[key].label;
+  showOnly(quizCard);
+  renderQuestion();
+}
+
+function updatePulse(){
+  const total = TRACKS[activeTrackKey].questions.length;
+  const frac = current / total;
+  pulseFill.style.strokeDashoffset = pulseLen * (1 - frac);
+  progressReadout.textContent = `Q${Math.min(current+1,total)} of ${total}`;
+}
+
+function letterFor(i){ return ['A','B','C','D'][i]; }
+
+function renderQuestion(){
+  answered = false;
+  const track = TRACKS[activeTrackKey];
+  const item = track.questions[current];
+  qNumber.textContent = `QUESTION ${String(current+1).padStart(2,'0')} / ${track.questions.length}`;
+  qText.textContent = item.q;
+  optionsEl.innerHTML = '';
+  feedback.classList.remove('show','good','bad','neutral');
+  nextBtn.classList.remove('show');
+  updatePulse();
+
+  const opts = track.type === 'knowledge' ? item.options : item.options.map(o=>o.label);
+
+  opts.forEach((opt, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${letterFor(idx)}</span><span>${opt}</span>`;
+    btn.addEventListener('click', ()=>selectOption(idx));
+    optionsEl.appendChild(btn);
+  });
+}
+
+function selectOption(idx){
+  if (answered) return;
+  answered = true;
+  const track = TRACKS[activeTrackKey];
+  const item = track.questions[current];
+  const allBtns = optionsEl.querySelectorAll('.option');
+
+  if (track.type === 'knowledge'){
+    const isCorrect = idx === item.correct;
+    if (isCorrect) score++;
+    answerLog.push({question:item.q, answer:item.options[idx]});
+    allBtns.forEach((b,i)=>{
+      b.disabled = true;
+      if (i===item.correct) b.classList.add('correct');
+      if (i===idx && idx!==item.correct) b.classList.add('wrong');
+      if (i!==idx && i!==item.correct) b.classList.add('dim');
+    });
+    feedback.classList.add('show', isCorrect?'good':'bad');
+    feedbackTag.textContent = isCorrect ? "Right on the money" : "Worth a second look";
+    feedbackText.textContent = item.why;
+  } else {
+    const chosenTag = item.options[idx].tag;
+    if (chosenTag !== null && chosenTag !== undefined) tally[chosenTag]++;
+    answerLog.push({question:item.q, answer:item.options[idx].label});
+    allBtns.forEach((b,i)=>{
+      b.disabled = true;
+      if (i===idx) b.classList.add('picked'); else b.classList.add('dim');
+    });
+    feedback.classList.add('show','neutral');
+    feedbackTag.textContent = "Noted";
+    feedbackText.textContent = "There's no right answer here — just building your reading.";
+  }
+
+  nextBtn.classList.add('show');
+  nextBtn.textContent = current === track.questions.length - 1 ? "See my reading →" : "Next →";
+}
+
+nextBtn.addEventListener('click', ()=>{
+  current++;
+  const track = TRACKS[activeTrackKey];
+  if (current >= track.questions.length){
+    if (track.type === 'knowledge') showKnowledgeResults();
+    else showStampResults();
+  } else {
+    renderQuestion();
+  }
+});
+
+function showKnowledgeResults(){
+  resetCallAsk();
+  updatePulse();
+  showOnly(resultsKnowledge);
+  const total = TRACKS.track3.questions.length;
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreOf').textContent = `OUT OF ${total}`;
+
+  const r = 76, circumference = 2*Math.PI*r;
+  const gaugeFill = document.getElementById('gaugeFill');
+  gaugeFill.style.strokeDasharray = circumference;
+  gaugeFill.style.strokeDashoffset = circumference;
+  requestAnimationFrame(()=>{ setTimeout(()=>{ gaugeFill.style.strokeDashoffset = circumference*(1-score/total); }, 100); });
+
+  let title, desc;
+  const pct = score/total;
+  if (pct >= 0.75){ title="Investment Savvy"; desc="You have a strong grip on the fundamentals, from risk and diversification to tax and fund types. A Wealth Clinic session can help you refine your allocation and move from informed to optimised."; }
+  else if (pct >= 0.4){ title="Solid Foundation"; desc="You know the essentials well, but you are not yet confident about what you know."; }
+  else { title="Room to Grow"; desc="You are investing mainly to experiment and explore, and you are not yet fully aware of it."; }
+
+  document.getElementById('kTitle').textContent = title;
+  document.getElementById('kDesc').textContent = desc;
+
+  saveResponse({
+    name: participantName, track: activeTrackKey, trackLabel: TRACKS.track3.label,
+    result: `${title} (${score}/${total})`, timestamp: Date.now(), answers: answerLog
+  });
+}
+
+function showStampResults(){
+  resetCallAsk();
+  updatePulse();
+  showOnly(resultsStamp);
+  let maxIdx = 0;
+  const bank = activeTrackKey === 'track1' ? ARCHETYPES : VALUEGAPS;
+  if (activeTrackKey === 'track2'){
+    const gaps = tally.reduce((a,b)=>a+b,0);
+    maxIdx = gaps <= 1 ? 0 : (gaps <= 3 ? 1 : 2);
+  } else {
+    for (let i=1;i<bank.length;i++){ if (tally[i] > tally[maxIdx]) maxIdx = i; }
+  }
+  const result = bank[maxIdx];
+
+  document.getElementById('stampEyebrow').textContent = result.eyebrow;
+  document.getElementById('stampText').textContent = result.code;
+  document.getElementById('sTitle').textContent = result.title;
+  document.getElementById('sDesc').textContent = result.desc;
+
+  saveResponse({
+    name: participantName, track: activeTrackKey, trackLabel: TRACKS[activeTrackKey].label,
+    result: result.title, timestamp: Date.now(), answers: answerLog
+  });
+}
+
+showOnly(sectorScreen);
+</script>
+</body>
+</html>
